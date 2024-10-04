@@ -68,13 +68,13 @@ def update_graph(n_clicks, selected_years, selected_country):
 
     df_yearly = df_filtered.groupby('year')['total_burned_area'].sum().reset_index()
 
-    short_year = [str(year)[-2:] for year in df_yearly['year']]
+    short_years = [str(year)[-2:] for year in df_yearly['year']]
 
     # 柱狀圖
     bar_fig = go.Figure()
 
     bar_fig.add_trace(go.Bar(
-        x=df_yearly['year'],
+        x=short_years,
         y=df_yearly['total_burned_area'],
         name='Yearly Burned Area',
         yaxis='y1',
@@ -85,23 +85,40 @@ def update_graph(n_clicks, selected_years, selected_country):
     bar_fig.update_layout(
         title=f'Yearly Burned Area - {selected_country} [{selected_years[0]}-{selected_years[1]}]',
         xaxis=dict(
-            # title='Year',
+            title='Year',
             titlefont=dict(color='#1f77b4', size=10),
             tickfont=dict(color='#1f77b4', size=10),
-            tickmode='linear',
+            tickmode='array',
+            tickvals=short_years,
+            ticktext=short_years,
             dtick=1,
+            showgrid=True,
+            gridcolor='#d0d0d0',
+            gridwidth=0.01,
+            showline=True,
+            linewidth=0.01,
+            linecolor='#d0d0d0',
+            mirror=True
         ),
         yaxis=dict(
             title='Yearly Burned Area [ha]',
             titlefont=dict(color='#1f77b4', size=10),
             tickfont=dict(color='#1f77b4', size=10),
             tickformat=',.0f',
+            showgrid=True,
+            gridcolor='#d0d0d0',
+            gridwidth=0.01,
+            showline=True,
+            linewidth=0.01,
+            linecolor='#d0d0d0',
+            mirror=True
         ),
-        bargap=0
+        bargap=0,
+        plot_bgcolor='white',  # 設置背景顏色為白色
+        paper_bgcolor='white',  # 設置整個圖表的背景為白色
     )
 
     # 熱圖
-    # z_values = [[1 if month in [6, 7, 8, 9] else 0 for month in range(1, 13)] for _ in range(selected_years[0], selected_years[1] + 1)]
     z_values = []
     for year in range(selected_years[0], selected_years[1] + 1):
         year_data = []
@@ -115,7 +132,7 @@ def update_graph(n_clicks, selected_years, selected_country):
 
     heatmap_fig = go.Figure(data=go.Heatmap(
         z=z_values_transposed,
-        x=[str(year) for year in range(selected_years[0], selected_years[1] + 1)],
+        x=[str(year)[-2:] for year in range(selected_years[0], selected_years[1] + 1)],
         y=['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
         colorscale=[[0, '#1f77b4'], [1, '#ff9999']],
         showscale=False,
@@ -125,11 +142,13 @@ def update_graph(n_clicks, selected_years, selected_country):
     ))
 
     heatmap_fig.update_layout(
-        title='Yearly Burned Area Seasonality',
-        xaxis=dict(tickfont=dict(color='#1f77b4', size=10)),
-        yaxis=dict(tickfont=dict(color='#1f77b4', size=10)),
-    )
-    
+        title=f'Yearly Burned Area Seasonality - {selected_country} [{selected_years[0]}-{selected_years[1]}]',
+        xaxis=dict(
+           title='Year',
+           titlefont=dict(color='#1f77b4', size=10),
+           tickfont=dict(color='#1f77b4', size=10)),
+        ),
+
     return bar_fig, heatmap_fig
 
 # 執行應用程式
